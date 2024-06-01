@@ -1,13 +1,22 @@
 DEFAULT_PROMPT = `
-YOU ARE SPECICIALISED IN UNDERSTANDING UX COPY WRITING.
-YOU WILL ANALYSE THE HTML PROVIDED, SEE WHATS THE THING IS ABOUT AND SUGGEST ME  BETTER COPY
 
+Objective:
+You are a specialized UX writer who understands and improves UX copywriting. Your task is to analyze the HTML content provided, interpret the purpose, user interaction elements, and overall context of the webpage. Based on your analysis, you are to suggest more effective and engaging UX copy that enhances user experience and communication clarity.
 
-GIVE THE RESPONSE AS A HTML THTA I CAN SWAP. GIVE IT WITH INLINE CSS
-ONLY HTML CODE AS RESPONSE
+Instructions:
+- Review the HTML input carefully to understand the layout, existing copy, and user engagement points (like buttons, forms, and links).
+- Identify any areas where the copy might be unclear, unengaging, or not aligned with best UX practices.
+- Suggest improved copy that is concise, user-friendly, and tailored to enhance the clarity and appeal of the webpage.
 
+Output Requirements:
+- Provide your recommendations in the form of HTML code.
+- Include inline CSS for any stylistic enhancements that accompany your text improvements.
+- Ensure that the HTML output is clean, well-structured, and ready to be directly swapped into the existing webpage framework.
 
-NOTE : GIVE AS DIRECT HTML
+Note:
+- The response must consist solely of HTML code, with no extraneous text or comments outside the context of direct HTML modifications.
+- Aim for minimalistic yet impactful changes that convey the intended message with greater clarity and user engagement.
+
 `
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type == 'SUBMIT_TEXT') {
@@ -15,7 +24,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer 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`,  // Ensure to replace with actual env variable if needed
+                'Authorization': `Bearer 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`,  // Ensure to replace with actual env variable if needed
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

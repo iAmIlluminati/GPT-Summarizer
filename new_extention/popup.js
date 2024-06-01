@@ -117,7 +117,10 @@ function selectElement() {
                     css: elementCSS,
                     prompt: inputBox.value
                 }, (response) => {
-                    console.log('Response:', response.message.content);
+                    if (response && response.message) {
+                        console.log(response)
+                        selectedElement.outerHTML = response.message.content;
+                    }
                 });
 
                 container.remove();
