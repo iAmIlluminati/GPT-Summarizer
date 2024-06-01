@@ -1,9 +1,16 @@
+DEFAULT_PROMPT = `
+YOU ARE SPECICIALISED IN UNDERSTANDING UX COPY WRITING.
+YOU WILL ANALYSE THE HTML PROVIDED, SEE WHATS THE THING IS ABOUT AND SUGGEST ME  BETTER COPY
+
+
+GIVE THE RESPONSE AS A HTML THTA I CAN SWAP. GIVE IT WITH INLINE CSS
+ONLY HTML CODE AS RESPONSE
+
+
+NOTE : GIVE AS DIRECT HTML
+`
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type == 'SUBMIT_TEXT') {
-        // console.log('XPath:', request.xpath);
-        // console.log('HTML:', request.html);
-        // console.log('CSS:', request.css);
-        // console.log('Prompt:', request.prompt);
 
         fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -12,9 +19,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "llama3-8b-8192",
+                model: "llama3-70b-8192",
                 messages: [
-                    { role: "system", content: request.prompt }, // Assuming prompt contains the user input
+                    { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
                     { role: "user", content: request.html }  // Assuming prompt contains the user input
                 ],
             })
