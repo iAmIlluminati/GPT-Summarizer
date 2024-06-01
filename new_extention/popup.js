@@ -117,7 +117,7 @@ function selectElement() {
                     css: elementCSS,
                     prompt: inputBox.value
                 }, (response) => {
-                    console.log('Response:', response);
+                    console.log('Response:', response.message.content);
                 });
 
                 container.remove();
