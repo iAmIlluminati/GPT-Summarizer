@@ -119,15 +119,8 @@ function selectElement() {
                 }, (response) => {
                     if (response && response.message) {
 
-                        console.log(response)
-                        // const htmlRegex = /```html\n([\s\S]*?)\n```/;
-                        // const htmlMatch = response.message.content.match(htmlRegex);
-
-                        // // Regex to extract text explanation
-                        // const textExplanationRegex = /```[\s\S]*?\n```([\s\S]*)/;
-                        // const textExplanationMatch = response.message.content.match(textExplanationRegex);
-
-                        selectedElement.outerHTML = response.message.choices[0].message.content
+                        let output = JSON.parse(response.message.choices[0].message.content)
+                        selectedElement.outerHTML = output.html
                     }
                 });
 
