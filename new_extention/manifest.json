@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Text Submitter",
+    "name": "Murakami AI",
     "version": "1.0",
     "description": "A Chrome extension to submit text via a POST request.",
     "permissions": [
