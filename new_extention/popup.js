@@ -7,54 +7,68 @@ document.getElementById('submitButton').addEventListener('click', () => {
         });
     });
 });
+// Function to generate XPath for any element
+function generateXPath(element) {
+    console.log(element)
+    if (element.id) return 'id("' + element.id + '")';
+    if (element === document.body) return element.tagName;
 
-// Function to highlight and select an element
+    var ix = 0;
+    var siblings = element.parentNode.childNodes;
+    for (var i = 0; i < siblings.length; i++) {
+        var sibling = siblings[i];
+        if (sibling === element) return generateXPath(element.parentNode) + '/' + element.tagName + '[' + (ix + 1) + ']';
+        if (sibling.nodeType === 1 && sibling.tagName === element.tagName) ix++;
+    }
+}
+
 function selectElement() {
-    // Remove any existing event listeners to prevent duplicates
-    document.removeEventListener('mouseover', handleMouseOver);
-    document.removeEventListener('mouseout', handleMouseOut);
-    document.removeEventListener('click', handleClick);
-
-    // Highlight elements on mouse over
-    document.addEventListener('mouseover', handleMouseOver, true);
-    document.addEventListener('mouseout', handleMouseOut, true);
-    document.addEventListener('click', handleClick, true);
+    let selectedElement = null;
 
     function handleMouseOver(event) {
-        event.target.style.border = '2px solid red';
+        if (!event.target.classList.contains('highlighted')) {
+            event.target.style.border = '2px solid orange';
+        }
     }
 
     function handleMouseOut(event) {
-        event.target.style.border = '';
+        if (!event.target.classList.contains('highlighted')) {
+            event.target.style.border = '';
+        }
     }
 
     function handleClick(event) {
         event.preventDefault();
         event.stopPropagation();
-        // Remove highlighting functionality
-        document.removeEventListener('mouseover', handleMouseOver);
-        document.removeEventListener('mouseout', handleMouseOut);
-        document.removeEventListener('click', handleClick);
+        if (selectedElement === event.target) {
+            event.target.classList.remove('highlighted');
+            event.target.style.border = '';
+            selectedElement = null;
+        } else {
+            if (selectedElement) {
+                selectedElement.classList.remove('highlighted');
+                selectedElement.style.border = '';
+            }
+            selectedElement = event.target;
+            selectedElement.classList.add('highlighted');
+            selectedElement.style.border = '2px solid red';
 
-        // Dim other elements
-        document.body.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        event.target.style.border = '';
-        event.target.style.backgroundColor = 'white';
+            const elementXPath = generateXPath(selectedElement);
+            const elementHTML = selectedElement.outerHTML;
+            const elementCSS = getComputedStyle(selectedElement).cssText;
 
-        // Send selected element's HTML to the background script
-        chrome.runtime.sendMessage({
-            type: 'SUBMIT_TEXT',
-            text: document.getElementById('textInput').value,
-            body: event.target.outerHTML
-        }, (response) => {
-            const message = response?.message ?? 'No response from server';
-            document.getElementById('response').innerText = message;
-            // Reset the body's background color
-            document.body.style.backgroundColor = '';
-        });
+            chrome.runtime.sendMessage({
+                type: 'SUBMIT_TEXT',
+                xpath: elementXPath,
+                html: elementHTML,
+                css: elementCSS
+            });
+        }
     }
+
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+    document.addEventListener('click', handleClick);
 }
 
-document.getElementById('textInput').addEventListener('click', function () {
-    this.classList.toggle('fullscreen');
-});
+// Add the generateXPath function from your content.js here if not already included
