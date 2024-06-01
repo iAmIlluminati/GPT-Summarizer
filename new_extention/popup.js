@@ -12,22 +12,26 @@ function selectElement() {
     let selectedElement = null;
     let inputBox = null;
     let submitButton = null;
+    let container = null; // Declare the container variable here
 
     function handleMouseOver(event) {
-        if (!event.target.classList.contains('highlighted') && !event.target.classList.contains('prompt-box')) {
+        if (!event.target.classList.contains('highlighted') &&
+            !event.target.closest('.input-container')) { // Use closest to check for parent as well
             event.target.style.border = '2px solid orange';
         }
     }
 
     function handleMouseOut(event) {
-        if (!event.target.classList.contains('highlighted') && !event.target.classList.contains('prompt-box')) {
+        if (!event.target.classList.contains('highlighted') &&
+            !event.target.closest('.input-container')) { // Use closest to check for parent as well
             event.target.style.border = '';
         }
     }
 
     function handleClick(event) {
-        if (event.target.classList.contains('prompt-box') || event.target.classList.contains('submit-button')) {
-            return; // Ignore clicks on the prompt box or submit button
+        if (event.target.closest('.input-container')) {
+            event.stopPropagation(); // Prevents event from propagating to other elements
+            return;
         }
 
         event.preventDefault();
@@ -37,13 +41,9 @@ function selectElement() {
             event.target.classList.remove('highlighted');
             event.target.style.border = '';
             selectedElement = null;
-            if (inputBox) {
-                inputBox.remove();
-                inputBox = null;
-            }
-            if (submitButton) {
-                submitButton.remove();
-                submitButton = null;
+            if (container) {
+                container.remove();
+                container = null;
             }
         } else {
             if (selectedElement) {
@@ -54,28 +54,48 @@ function selectElement() {
             selectedElement.classList.add('highlighted');
             selectedElement.style.border = '2px solid red';
 
-            if (inputBox) {
-                inputBox.remove();
-            }
-            if (submitButton) {
-                submitButton.remove();
+            if (container) {
+                container.remove();
             }
 
+            // Create a container for the input box and submit button
+            container = document.createElement('div');
+            container.classList.add('input-container'); // Add a class to identify the container
+            container.style.position = 'absolute';
+            container.style.left = `${event.pageX}px`;
+            container.style.top = `${event.pageY}px`;
+            container.style.zIndex = '1000';
+            container.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+            container.style.padding = '10px';
+            container.style.borderRadius = '5px';
+            container.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            container.style.width = '400px';
+
+            // Create the input box
             inputBox = document.createElement('textarea');
             inputBox.classList.add('prompt-box');
-            inputBox.style.position = 'absolute';
-            inputBox.style.left = `${event.pageX}px`;
-            inputBox.style.top = `${event.pageY}px`;
+            inputBox.style.width = '100%';
+            inputBox.style.height = '100px';
+            inputBox.style.border = '1px solid #ccc';
+            inputBox.style.outline = 'none';
+            inputBox.style.marginBottom = '10px';
             inputBox.placeholder = 'Enter your prompt here...';
-            document.body.appendChild(inputBox);
 
+            // Create the submit button
             submitButton = document.createElement('button');
             submitButton.classList.add('submit-button');
-            submitButton.style.position = 'absolute';
-            submitButton.style.left = `${event.pageX}px`;
-            submitButton.style.top = `${event.pageY + 100}px`;
             submitButton.innerText = 'Submit';
-            document.body.appendChild(submitButton);
+            submitButton.style.width = '100%';
+            submitButton.style.padding = '10px';
+            submitButton.style.border = 'none';
+            submitButton.style.backgroundColor = '#007BFF';
+            submitButton.style.color = 'white';
+            submitButton.style.borderRadius = '5px';
+
+            // Append elements to the container and then to the body
+            container.appendChild(inputBox);
+            container.appendChild(submitButton);
+            document.body.appendChild(container);
 
             submitButton.addEventListener('click', () => {
                 const elementXPath = generateXPath(selectedElement);
@@ -90,10 +110,8 @@ function selectElement() {
                     prompt: inputBox.value
                 });
 
-                inputBox.remove();
-                inputBox = null;
-                submitButton.remove();
-                submitButton = null;
+                container.remove();
+                container = null;
             });
         }
     }
@@ -101,17 +119,4 @@ function selectElement() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
     document.addEventListener('click', handleClick);
-
-    function generateXPath(element) {
-        if (element.id) return 'id("' + element.id + '")';
-        if (element === document.body) return element.tagName;
-
-        var ix = 0;
-        var siblings = element.parentNode.childNodes;
-        for (var i = 0; i < siblings.length; i++) {
-            var sibling = siblings[i];
-            if (sibling === element) return generateXPath(element.parentNode) + '/' + element.tagName + '[' + (ix + 1) + ']';
-            if (sibling.nodeType === 1 && sibling.tagName === element.tagName) ix++;
-        }
-    }
 }
