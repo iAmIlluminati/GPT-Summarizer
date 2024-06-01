@@ -14,6 +14,19 @@ function selectElement() {
     let submitButton = null;
     let container = null; // Declare the container variable here
 
+    function generateXPath(element) {
+        if (element.id) return 'id("' + element.id + '")';
+        if (element === document.body) return element.tagName;
+
+        var ix = 0;
+        var siblings = element.parentNode.childNodes;
+        for (var i = 0; i < siblings.length; i++) {
+            var sibling = siblings[i];
+            if (sibling === element) return generateXPath(element.parentNode) + '/' + element.tagName + '[' + (ix + 1) + ']';
+            if (sibling.nodeType === 1 && sibling.tagName === element.tagName) ix++;
+        }
+    }
+
     function handleMouseOver(event) {
         if (!event.target.classList.contains('highlighted') &&
             !event.target.closest('.input-container')) { // Use closest to check for parent as well
@@ -101,7 +114,13 @@ function selectElement() {
                 const elementXPath = generateXPath(selectedElement);
                 const elementHTML = selectedElement.outerHTML;
                 const elementCSS = getComputedStyle(selectedElement).cssText;
-
+                console.log({
+                    type: 'SUBMIT_TEXT',
+                    xpath: elementXPath,
+                    html: elementHTML,
+                    css: elementCSS,
+                    prompt: inputBox.value
+                })
                 chrome.runtime.sendMessage({
                     type: 'SUBMIT_TEXT',
                     xpath: elementXPath,
@@ -110,8 +129,6 @@ function selectElement() {
                     prompt: inputBox.value
                 });
 
-                container.remove();
-                container = null;
             });
         }
     }
@@ -119,4 +136,7 @@ function selectElement() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
     document.addEventListener('click', handleClick);
+
 }
+
+
