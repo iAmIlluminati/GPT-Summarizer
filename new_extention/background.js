@@ -22,18 +22,22 @@ Inline CSS Priority: Remember that inline CSS takes the highest precedence in th
 Performance Considerations: While inline CSS is useful for quick and targeted styling adjustments, be mindful of the potential impact on page performance. Aim for a balance between visual enhancements and maintaining a lightweight and efficient code structure.
 
 By combining your UX writing expertise with strategic inline CSS refinements, you have the power to significantly elevate the user experience and visual appeal of the webpage. Focus on creating a seamless integration of compelling copy and intuitive design elements that guide users effortlessly through their journey.
+
+JUST GIVE THE FINAL HTML
+JUST GIVE THE FINAL HTML AS IT IS PARSED DIRECTLY
+
 `
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type == 'SUBMIT_TEXT') {
 
-        fetch('https://api.together.xyz/v1/chat/completions', {
+        fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMjE2MTQ1Yy05MjhkLTQwYmQtYTBhOS03ZWQwNjdjMDg2MGYiLCJlbWFpbCI6InZpbm9rcmlzaDAwMUBnbWFpbC5jb20iLCJpYXQiOjE3MTcyNjE3OTUsImV4cGlyZXNJbiI6IjF5IiwicmF0ZUxpbWl0UGVyTWludXRlIjozNTAwLCJxdW90YVJlc2V0IjoiMWgiLCJjbGllbnRFbnZpcm9ubWVudCI6InNlcnZlciIsInNlcnZlckVudmlyb25tZW50IjoicHJvZHVjdGlvbiIsInZlcnNpb24iOiJ2MC4yIiwiZXhwIjoxNzQ4ODE5Mzk1fQ.AYM87ywQvM_pjEr2ZwbkmSNfPK5W51JRamNZwywoeLqfbUBqiqzS9M69l2MZjE4xYRTQj0036JiZwn3NxZypYQ`,  // Ensure to replace with actual env variable if needed
+                'Authorization': `Bearer `,  // Ensure to replace with actual env variable if needed
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "mistralai/Mixtral-8x22B-Instruct-v0.1",
+                model: "gpt-4o",
                 messages: [
                     { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
                     { role: "user", content: request.html }  // Assuming prompt contains the user input
@@ -42,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         })
             .then(response => response.json())
             .then(data => {
-                sendResponse({ message: data.choices[0].message || 'No response from server' });  // Adjusted to handle the expected API response
+                sendResponse({ message: data || 'No response from server' });  // Adjusted to handle the expected API response
             })
             .catch(error => {
                 console.error('Error:', error);

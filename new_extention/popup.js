@@ -118,13 +118,16 @@ function selectElement() {
                     prompt: inputBox.value
                 }, (response) => {
                     if (response && response.message) {
-                        const htmlRegex = /```html\n([\s\S]*?)```/;
-                        const htmlMatch = response.message.content.match(htmlRegex);
 
-                        // Regex to extract text explanation
-                        const textExplanationRegex = /([\s\S]*?)Here's the refactored HTML code with inline CSS:/;
-                        const textExplanationMatch = response.message.content.match(textExplanationRegex);
-                        selectedElement.outerHTML = htmlMatch
+                        console.log(response)
+                        // const htmlRegex = /```html\n([\s\S]*?)\n```/;
+                        // const htmlMatch = response.message.content.match(htmlRegex);
+
+                        // // Regex to extract text explanation
+                        // const textExplanationRegex = /```[\s\S]*?\n```([\s\S]*)/;
+                        // const textExplanationMatch = response.message.content.match(textExplanationRegex);
+
+                        selectedElement.outerHTML = response.message.choices[0].message.content
                     }
                 });
 
