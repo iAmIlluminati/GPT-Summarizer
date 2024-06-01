@@ -23,8 +23,13 @@ Performance Considerations: While inline CSS is useful for quick and targeted st
 
 By combining your UX writing expertise with strategic inline CSS refinements, you have the power to significantly elevate the user experience and visual appeal of the webpage. Focus on creating a seamless integration of compelling copy and intuitive design elements that guide users effortlessly through their journey.
 
-JUST GIVE THE FINAL HTML
-JUST GIVE THE FINAL HTML AS IT IS PARSED DIRECTLY
+Give the output as a JSON object :
+
+{
+    "html":<Updated HTML Code with styles>,
+    "explaination":<Explaination>
+}
+
 
 `
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -38,6 +43,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o",
+                response_format: { "type": "json_object" },
+
                 messages: [
                     { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
                     { role: "user", content: request.html }  // Assuming prompt contains the user input
@@ -56,3 +63,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true; // Indicates that the response will be sent asynchronously
     }
 });
+
+
+
