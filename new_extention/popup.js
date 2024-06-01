@@ -92,6 +92,7 @@ function selectElement() {
             inputBox.style.border = '1px solid #ccc';
             inputBox.style.outline = 'none';
             inputBox.style.marginBottom = '10px';
+            inputBox.style.color = 'black';
             inputBox.placeholder = 'Enter your prompt here...';
 
             // Create the submit button
