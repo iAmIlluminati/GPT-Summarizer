@@ -10,9 +10,7 @@ document.getElementById('analyzeButton').addEventListener('click', () => {
 
 function selectElement() {
     let selectedElement = null;
-    let inputBox = null;
-    let submitButton = null;
-    let container = null; // Declare the container variable here
+    let container = null;
 
     function generateXPath(element) {
         if (element.id) return 'id("' + element.id + '")';
@@ -29,21 +27,21 @@ function selectElement() {
 
     function handleMouseOver(event) {
         if (!event.target.classList.contains('highlighted') &&
-            !event.target.closest('.input-container')) { // Use closest to check for parent as well
+            !event.target.closest('.input-container')) {
             event.target.style.border = '2px solid orange';
         }
     }
 
     function handleMouseOut(event) {
         if (!event.target.classList.contains('highlighted') &&
-            !event.target.closest('.input-container')) { // Use closest to check for parent as well
+            !event.target.closest('.input-container')) {
             event.target.style.border = '';
         }
     }
 
     function handleClick(event) {
         if (event.target.closest('.input-container')) {
-            event.stopPropagation(); // Prevents event from propagating to other elements
+            event.stopPropagation();
             return;
         }
 
@@ -71,9 +69,8 @@ function selectElement() {
                 container.remove();
             }
 
-            // Create a container for the input box and submit button
             container = document.createElement('div');
-            container.classList.add('input-container'); // Add a class to identify the container
+            container.classList.add('input-container');
             container.style.position = 'absolute';
             container.style.left = `${event.pageX}px`;
             container.style.top = `${event.pageY}px`;
@@ -84,8 +81,7 @@ function selectElement() {
             container.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
             container.style.width = '400px';
 
-            // Create the input box
-            inputBox = document.createElement('textarea');
+            const inputBox = document.createElement('textarea');
             inputBox.classList.add('prompt-box');
             inputBox.style.width = '100%';
             inputBox.style.height = '100px';
@@ -95,8 +91,7 @@ function selectElement() {
             inputBox.style.color = 'black';
             inputBox.placeholder = 'Enter your prompt here...';
 
-            // Create the submit button
-            submitButton = document.createElement('button');
+            const submitButton = document.createElement('button');
             submitButton.classList.add('submit-button');
             submitButton.innerText = 'Submit';
             submitButton.style.width = '100%';
@@ -106,7 +101,6 @@ function selectElement() {
             submitButton.style.color = 'white';
             submitButton.style.borderRadius = '5px';
 
-            // Append elements to the container and then to the body
             container.appendChild(inputBox);
             container.appendChild(submitButton);
             document.body.appendChild(container);
@@ -115,21 +109,19 @@ function selectElement() {
                 const elementXPath = generateXPath(selectedElement);
                 const elementHTML = selectedElement.outerHTML;
                 const elementCSS = getComputedStyle(selectedElement).cssText;
-                console.log({
-                    type: 'SUBMIT_TEXT',
-                    xpath: elementXPath,
-                    html: elementHTML,
-                    css: elementCSS,
-                    prompt: inputBox.value
-                })
+
                 chrome.runtime.sendMessage({
                     type: 'SUBMIT_TEXT',
                     xpath: elementXPath,
                     html: elementHTML,
                     css: elementCSS,
                     prompt: inputBox.value
+                }, (response) => {
+                    console.log('Response:', response);
                 });
 
+                container.remove();
+                container = null;
             });
         }
     }
@@ -137,7 +129,4 @@ function selectElement() {
     document.addEventListener('mouseover', handleMouseOver);
     document.addEventListener('mouseout', handleMouseOut);
     document.addEventListener('click', handleClick);
-
 }
-
-
