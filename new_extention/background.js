@@ -31,38 +31,127 @@ Give the output as a JSON object :
 }
 
 
-`
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type == 'SUBMIT_TEXT') {
+`.trimStart();  // Friendly note: This is recommended strongly as tokenizer might confuse the model otherwise
 
-        fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer `,  // Ensure to replace with actual env variable if needed
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: "gpt-4o",
-                response_format: { "type": "json_object" },
+/* Julep code start */
+const JULEP_ENDPOINT = "https://api-alpha.julep.ai";
+const JULEP_API_KEY = "<api-key-from-env>";
+const AGENT_NAME = "gpt-summarizer";
+const SESSION_NAME = "default-session";
 
-                messages: [
-                    { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
-                    { role: "user", content: request.html }  // Assuming prompt contains the user input
-                ],
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                sendResponse({ message: data || 'No response from server' });  // Adjusted to handle the expected API response
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                sendResponse({ message: 'Error submitting text' });
-            });
+async function makeRequest(method, path, body) {
+    const response = await fetch(JULEP_ENDPOINT + path, {
+        method,
+        headers: {
+            'Authorization': `Bearer ${JULEP_API_KEY}`,  // Ensure to replace with actual env variable if needed
+            'Content-Type': 'application/json'
+        },
+        body: body ? JSON.stringify(body) : undefined,
+    });
 
-        return true; // Indicates that the response will be sent asynchronously
+    const data = await response.json();
+    return data;
+}
+
+// globals
+let agent = null;
+let session = null;
+
+async function getAgent {
+    if (agent) { return agent }
+
+    const metadata = {name: AGENT_NAME};
+    const metadataFilter = JSON.stringify(metadata);
+    
+    try {
+        agent = await makeRequest("GET", `/api/agents?metadata_filter=${metadataFilter}`);
+        return agent;
+    } catch (e) {
+        // Create agent if not exists
+        const agentParams = {
+            name: AGENT_NAME,
+            model: "gpt-4o",
+            metadata,  // Adding this so that we can search by it
+        };
+        
+        agent = await makeRequest("POST", `/api/agents`, agentParams);
+        return agent;
     }
-});
+}
+
+async function getSession {
+    if (session) { return session; }
+
+    const agent = await getAgent();
+    const metadata = {name: SESSION_NAME};
+    const metadataFilter = JSON.stringify(metadata);
+    
+    try {
+        session = await makeRequest("GET", `/api/sessions?metadata_filter=${metadataFilter}`);
+        return session;
+    } catch (e) {
+        // Create agent if not exists
+        const sessionParams = {
+            agent_id: agent.id,
+            metadata,  // Adding this so that we can search by it
+        };
+        
+        session = await makeRequest("POST", `/api/sessions`, agentParams);
+        return session;
+    }
+})();
+
+async function chat(messages, settings={}) {
+    const session = await getSession();
+    const response = await makeRequest("POST", `/api/sessions/${session.id}/chat`, { messages, ...settings });
+    return response[0];
+}
+
+/* Julep code end */
+
+
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     if (request.type == 'SUBMIT_TEXT') {
+
+// <<<<<<< patch-1
+//         chat({
+//             model: "gpt-4o",
+//             messages: [
+//                 { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
+//                 { role: "user", content: request.html }  // Assuming prompt contains the user input
+//             ],
+// =======
+//         fetch('https://api.openai.com/v1/chat/completions', {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer `,  // Ensure to replace with actual env variable if needed
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 model: "gpt-4o",
+//                 response_format: { "type": "json_object" },
+
+//                 messages: [
+//                     { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
+//                     { role: "user", content: request.html }  // Assuming prompt contains the user input
+//                 ],
+//             })
+// >>>>>>> main
+//         })
+//             .then(data => {
+//                 sendResponse({ message: data || 'No response from server' });  // Adjusted to handle the expected API response
+//             })
+//             .catch(error => {
+//                 console.error('Error:', error);
+//                 sendResponse({ message: 'Error submitting text' });
+//             });
+
+//         return true; // Indicates that the response will be sent asynchronously
+//     }
+// });
+// <<<<<<< patch-1
+// =======
 
 
 
+// >>>>>>> main
