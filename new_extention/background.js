@@ -23,8 +23,13 @@ Performance Considerations: While inline CSS is useful for quick and targeted st
 
 By combining your UX writing expertise with strategic inline CSS refinements, you have the power to significantly elevate the user experience and visual appeal of the webpage. Focus on creating a seamless integration of compelling copy and intuitive design elements that guide users effortlessly through their journey.
 
-JUST GIVE THE FINAL HTML
-JUST GIVE THE FINAL HTML AS IT IS PARSED DIRECTLY
+Give the output as a JSON object :
+
+{
+    "html":<Updated HTML Code with styles>,
+    "explaination":<Explaination>
+}
+
 
 `.trimStart();  // Friendly note: This is recommended strongly as tokenizer might confuse the model otherwise
 
@@ -105,24 +110,48 @@ async function chat(messages, settings={}) {
 /* Julep code end */
 
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type == 'SUBMIT_TEXT') {
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     if (request.type == 'SUBMIT_TEXT') {
 
-        chat({
-            model: "gpt-4o",
-            messages: [
-                { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
-                { role: "user", content: request.html }  // Assuming prompt contains the user input
-            ],
-        })
-            .then(data => {
-                sendResponse({ message: data || 'No response from server' });  // Adjusted to handle the expected API response
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                sendResponse({ message: 'Error submitting text' });
-            });
+// <<<<<<< patch-1
+//         chat({
+//             model: "gpt-4o",
+//             messages: [
+//                 { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
+//                 { role: "user", content: request.html }  // Assuming prompt contains the user input
+//             ],
+// =======
+//         fetch('https://api.openai.com/v1/chat/completions', {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer `,  // Ensure to replace with actual env variable if needed
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 model: "gpt-4o",
+//                 response_format: { "type": "json_object" },
 
-        return true; // Indicates that the response will be sent asynchronously
-    }
-});
+//                 messages: [
+//                     { role: "user", content: DEFAULT_PROMPT + request.prompt }, // Assuming prompt contains the user input
+//                     { role: "user", content: request.html }  // Assuming prompt contains the user input
+//                 ],
+//             })
+// >>>>>>> main
+//         })
+//             .then(data => {
+//                 sendResponse({ message: data || 'No response from server' });  // Adjusted to handle the expected API response
+//             })
+//             .catch(error => {
+//                 console.error('Error:', error);
+//                 sendResponse({ message: 'Error submitting text' });
+//             });
+
+//         return true; // Indicates that the response will be sent asynchronously
+//     }
+// });
+// <<<<<<< patch-1
+// =======
+
+
+
+// >>>>>>> main

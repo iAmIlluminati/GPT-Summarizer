@@ -8,6 +8,9 @@ document.getElementById('analyzeButton').addEventListener('click', () => {
     });
 });
 
+
+
+
 function selectElement() {
     let selectedElement = null;
     let container = null;
@@ -38,6 +41,32 @@ function selectElement() {
             event.target.style.border = '';
         }
     }
+
+    function createInfoIconSVG() {
+        const svgNS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("width", "24");
+        svg.setAttribute("height", "24");
+        svg.style.cursor = "pointer";
+
+        const circle = document.createElementNS(svgNS, "circle");
+        circle.setAttribute("cx", "12");
+        circle.setAttribute("cy", "12");
+        circle.setAttribute("r", "10");
+        circle.setAttribute("fill", "#007BFF");  // Blue background
+
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", "M11 7h2v2h-2zM11 11h2v5h-2z");
+        path.setAttribute("fill", "#ffffff");  // White text
+
+        svg.appendChild(circle);
+        svg.appendChild(path);
+
+        return svg;
+    }
+
+
 
     function handleClick(event) {
         if (event.target.closest('.input-container')) {
@@ -118,10 +147,37 @@ function selectElement() {
                     prompt: inputBox.value
                 }, (response) => {
                     if (response && response.message) {
+                        let output = JSON.parse(response.message.choices[0].message.content);
+                        console.log(output);
 
-                        let output = JSON.parse(response.message.choices[0].message.content)
-                        selectedElement.outerHTML = output.html
+                        selectedElement.innerHTML = output.html;
+
+                        // Create and append info icon
+                        const infoIcon = createInfoIconSVG();
+                        infoIcon.title = 'Click for explanation';
+                        selectedElement.appendChild(infoIcon);
+
+                        // Add event listener to info icon
+                        infoIcon.addEventListener('click', (event) => {
+                            const explanationBox = document.createElement('div');
+                            explanationBox.style.cssText = `
+            position: absolute; left: ${event.pageX}px; top: ${event.pageY}px;
+            z-index: 2000; background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 300px; color: black;`;
+                            explanationBox.innerText = output.explanation;
+                            document.body.appendChild(explanationBox);
+
+                            // Remove the explanation box when clicked outside
+                            document.addEventListener('click', (e) => {
+                                if (!explanationBox.contains(e.target) && e.target !== infoIcon) {
+                                    explanationBox.remove();
+                                }
+                            }, { once: true });
+                        });
                     }
+
+
                 });
 
                 container.remove();
